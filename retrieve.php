@@ -11,42 +11,38 @@
 	<body>
 		<form align="center" style="margin-top: 100px">
 	<?php
-	// pengesetan atribut mysql kedalam variabel
-	$servername = "localhost"; 
-	$username = "thomasrobin";
-	$password = "thomasr12";
-	$dbname = "NIM";
 
-		// membuat koneksi dengan mysql
-		$conn = new mysqli($servername, $username, $password, $dbname);
-		
-		// mengecek koneksi dengan mysql
-		if ($conn->connect_error) {
-			die("Connection failed: " . $conn->connect_error);
-		} 
-		
-		
+				
+				
+				$db = pg_connect('host=ec2-54-235-193-0.compute-1.amazonaws.com port=5432 dbname=d210535v4jki1h user=btrrkcveeaiskz password=c61ed37634390f1e379c94af8a0609403294ae5b6d66612986a557cc7812424a');
+				if (!$db){
+					echo "Error : Unable to open database \n";
+				}
+
 		if ($_POST['NIM'] == NULL) //apabila pada search bar nim tidak diisi apapun
 		{
 			echo "Please Insert NIM";
 		}
 		else { //apabila pada search bar nim diisi dengan  nim
-		$sql = "SELECT * FROM NIM WHERE NIM = ". $_POST['NIM']; //query disimpan kedalam satu variabel untuk kemudahan
-		$result = $conn->query($sql); //query data dari database
-		$row = $result->fetch_assoc(); //mengambil hasil data kemudian dimasukan kedalam variabel row
-		$nim = $row['NIM']; //set nim dengan NIM
-		$nama = $row['NAMA']; //set nama dengan NAMA
-		$email = $row['EMAIL']; // set email dengan EMAIL
-		$angkatan = $row['ANGKATAN']; // set angkatan dengan ANGKATAN
-		$jurusan = $row['JURUSAN']; // set jurusan dengan JURUSAN
-		
-		echo '<img height="500" width="300" src="data:image;base64,'.base64_encode($row['GAMBAR']).'">' , "<br>";	//print gambar yang berada dari database dengan base64			
+		$sql = "SELECT * FROM NIM WHERE nim = ". $_POST['NIM']; //query disimpan kedalam satu variabel untuk kemudahan
+		$ret = pg_query($db,$sql);
+		$row = pg_fetch_assoc($ret); //mengambil hasil data kemudian dimasukan kedalam variabel row
+		$nim = $row['nim']; //set nim dengan NIM
+		$nama = $row['nama']; //set nama dengan NAMA
+		$email = $row['email']; // set email dengan EMAIL
+		$angkatan = $row['angkatan']; // set angkatan dengan ANGKATAN
+		$jurusan = $row['jurusan']; // set jurusan dengan JURUSAN
+
+	
+		echo '<img height="500" width="300" src="data:image;base64,'.base64_encode($row['gambar']).'">' , "<br>";	//print gambar yang berada dari database dengan base64			
 		}
-	$conn->close(); //menutup koneksi
+	//pg_close($db); //menutup koneksi
 	$sql = NULL; //mereset query menjadi null
 	?>
 	<br>
-	<div class="col-md-3" style="margin-left: 700px">
+	<div align="center">
+		<?php if ( $_POST['NIM'] != NULL) : ?>
+	<div class="col-md-4">
 	<table class="table table-hover table-bordered">
 				<tbody>
 					<tr>
@@ -70,7 +66,11 @@
 						<td><?php echo $jurusan ?></td>
 					</tr>
 				</tbody>
-			</table></div><br>
+			</table>
+			</div>
+			<?php endif; ?>
+			</div>
+			<br>
 	<a href="index.php" class="btn btn-primary">Back</a>
 	</form>
 	</body>
